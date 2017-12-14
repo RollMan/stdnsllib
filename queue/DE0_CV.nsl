@@ -1,0 +1,25 @@
+#include "DE0_CV.inc"
+module DE0_CV{
+  mem m[32][8];
+	reg front_p[5] = 0;
+	reg end_p[5] = 0;
+
+  reg in_r[8] = 0;
+
+  is_empty = if(front_p == end_p) 1 else 0;
+
+	func pop{
+    front_p++;
+		out = m[front_p];
+	}
+
+	func push seq{
+    seq{
+      in_r := in;
+      {
+        m[end_p] := in_r;
+        end_p++;
+      }
+    }
+  }
+}
