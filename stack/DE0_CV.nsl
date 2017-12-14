@@ -1,23 +1,23 @@
 #include "DE0_CV.inc"
 module DE0_CV{
   mem m[32][8];
-  reg pointer[5];
+  reg pointer[5] = 0;
 
   reg in_r[8] = 0;
 
   is_empty = if(pointer == 0) 1 else 0;
 
 	func pop{
-    front_p++;
-		out = m[front_p];
+    pointer--;
+		out = m[pointer];
 	}
 
 	func push seq{
     seq{
       in_r := in;
       {
-        m[end_p] := in_r;
-        end_p++;
+        m[pointer] := in_r;
+        pointer++;
       }
     }
   }

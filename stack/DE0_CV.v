@@ -1,5 +1,5 @@
 
-/*Produced by NSL Core(version=20170817), IP ARCH, Inc. Thu Dec 14 18:23:59 2017
+/*Produced by NSL Core(version=20170817), IP ARCH, Inc. Thu Dec 14 19:04:29 2017
  Licensed to :EVALUATION USER*/
 /*
  DO NOT USE ANY PART OF THIS FILE FOR COMMERCIAL PRODUCTS. 
@@ -19,8 +19,7 @@ module DE0_CV ( p_reset , m_clock , in , out , is_empty , pop , push );
   input push;
   wire push;
   reg [7:0] m [0:31];
-  reg [4:0] front_p;
-  reg [4:0] end_p;
+  reg [4:0] pointer;
   reg [7:0] in_r;
   wire _net_0;
   wire _net_1;
@@ -35,8 +34,8 @@ always @(posedge m_clock or negedge p_reset)
   begin
 if (((~_net_1)&_net_1))
  begin $display("Warning: assign collision(DE0_CV:_net_0) at %d",$time);
-if ((~_net_1)) $display("assert ((~_net_1)) line 9 at %d\n",$time);
-if (_net_1) $display("assert (_net_1) line 9 at %d\n",$time);
+if ((~_net_1)) $display("assert ((~_net_1)) line 8 at %d\n",$time);
+if (_net_1) $display("assert (_net_1) line 8 at %d\n",$time);
  end
  end
 
@@ -56,14 +55,14 @@ if (_net_1) $display("assert (_net_1) line 9 at %d\n",$time);
 // synthesis translate_on
 // synopsys translate_on
 ;
-   assign  _net_1 = (front_p==end_p);
+   assign  _net_1 = (pointer==5'b00000);
    assign  out = 
 // synthesis translate_off
 // synopsys translate_off
 (pop)? 
 // synthesis translate_on
 // synopsys translate_on
-((pop)?(m[front_p]):8'b0)
+((pop)?(m[pointer]):8'b0)
 // synthesis translate_off
 // synopsys translate_off
 :8'bx
@@ -74,22 +73,43 @@ if (_net_1) $display("assert (_net_1) line 9 at %d\n",$time);
 always @(posedge m_clock)
   begin
    if (_reg_3 )
-     m[end_p] <= in_r;
+     m[pointer] <= in_r;
 end
 always @(posedge m_clock or negedge p_reset)
   begin
 if (~p_reset)
-     front_p <= 5'b00000;
+     pointer <= 5'b00000;
+else 
+// synthesis translate_off
+// synopsys translate_off
+if ((_reg_3&pop))   pointer <= 5'bx; 
+  else 
+// synthesis translate_on
+// synopsys translate_on
+if (_reg_3)
+      pointer <= (pointer+5'b00001);
 else if (pop)
-      front_p <= (front_p+5'b00001);
+      pointer <= (pointer-5'b00001);
 end
-always @(posedge m_clock or negedge p_reset)
+
+// synthesis translate_off
+// synopsys translate_off
+always @(posedge m_clock)
   begin
-if (~p_reset)
-     end_p <= 5'b00000;
-else if (_reg_3)
-      end_p <= (end_p+5'b00001);
-end
+if (((_reg_3|pop)==1'b1) ||
+ ((_reg_3|pop)==1'b0) ) begin
+ if ((_reg_3&pop))
+ begin $display("Warning: assign collision(DE0_CV:pointer) at %d",$time);
+
+  end
+ end
+ else 
+ $display("Warning: register set hazard(DE0_CV:pointer) at %d",$time);
+
+  end
+
+// synthesis translate_on
+// synopsys translate_on
 always @(posedge m_clock or negedge p_reset)
   begin
 if (~p_reset)
@@ -120,5 +140,5 @@ else if (_reg_4)
 end
 endmodule
 
-/*Produced by NSL Core(version=20170817), IP ARCH, Inc. Thu Dec 14 18:23:59 2017
+/*Produced by NSL Core(version=20170817), IP ARCH, Inc. Thu Dec 14 19:04:29 2017
  Licensed to :EVALUATION USER*/
