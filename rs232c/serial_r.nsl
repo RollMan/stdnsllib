@@ -10,7 +10,6 @@ module  serial_r {
     reg         bit[4]          =   0;
     reg         RDATA[8]        =   0;
     reg         midi_num[2]     =   0;
-    reg         rcvcall_reg     =   0;
 
 
     proc_name   det_start();
@@ -28,12 +27,10 @@ module  serial_r {
 	    if(rxd_d3 && ~rxd_d2) det_start();
     }
 
-    rcvcall      =  rcvcall_reg;
-    RCV          =  RDATA;
+    //RCV          =  RDATA;
 
     //  judgement Start-Bit or noise
     proc det_start {
-        rcvcall_reg := 0;
         if(~rxd_d2) {
             any {
                 det_counter == START_BIT    :   {
@@ -60,30 +57,16 @@ module  serial_r {
                                                 d_counter := 0;
                                                 if(bit == 7) {
                                                     bit := 0;
-                                                    rcvcall_reg := 1;
-                                                    reload();
+                                                    //reload();
                                                     //finish;
+                                                    complete(RDATA);
+                                                    finish;
                                                 } else {
                                                     bit++;
-                                                }
+                                               }
                                             }
             else                        :   d_counter++;
         }
     }
 
-    //  Output receiving data
-    proc reload {
-        if(rcvcall_reg) {
-            rcvcall_reg := 0;
-            finish;
-        } else {
-            rcvcall_reg := 0;
-            midi_num++;
-            any {
-                midi_num == 0   :   midi_data0 = RDATA;
-                midi_num == 1   :   midi_data1 = RDATA;
-                midi_num == 2   :   midi_data2 = RDATA;
-            }
-        }
-    }
 }

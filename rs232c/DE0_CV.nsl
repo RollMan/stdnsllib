@@ -13,8 +13,8 @@ module DE0_CV {
   receiver.rxd = RDX;
   TDX = sender.TDX;
 
-  if(receiver.rcvcall){
-    sender.launch(receiver.RCV);
+  func receiver.complete {
+    sender.launch(receiver.DATA);
   }
   //func receiver.complete{
   //  sender.launch(receiver.DATA);

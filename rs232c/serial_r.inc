@@ -1,7 +1,7 @@
 declare serial_r {
     input       rxd;
-    output      RCV[8];
-    output      rcvcall;
+    output      DATA[8];
+    func_out      complete(DATA);
     output      midi_data0[8];
     output      midi_data1[8];
     output      midi_data2[8];
