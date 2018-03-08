@@ -1,0 +1,66 @@
+#include "serial_s.inc"
+
+module serial_s {
+  reg TDX_r = 1;
+  reg cnt[16] = 16'h0;
+  reg idx[5] = 5'h0;
+  reg data[8] = 8'h0;
+
+  proc_name startbit, send, endbit;
+
+  TDX = TDX_r;
+
+  func launch{
+    if(!startbit && !send && !endbit){
+      data := datain;
+      startbit();
+    }
+  }
+
+  proc startbit{
+    TDX_r := 0;
+    any{
+      cnt == DATBIT_DELAY : {
+        cnt := 0;
+        send();
+      }
+      cnt != DATBIT_DELAY : {
+        cnt++;
+      }
+    }
+  }
+
+  proc send{
+    TDX_r := data[idx];
+
+
+    any{
+      cnt == DATBIT_DELAY : {
+        cnt := 0;
+        if(idx != 7){
+          idx++;
+        }
+        if(idx == 7){
+          idx := 0;
+          endbit();
+        }
+      }
+      cnt != DATBIT_DELAY : {
+        cnt++;
+      }
+    }
+  }
+
+  proc endbit{
+    TDX_r := 1;
+    any{
+      cnt == DATBIT_DELAY : {
+        cnt := 0;
+        complete(); finish;
+      }
+      cnt != DATBIT_DELAY : {
+        cnt++;
+      }
+    }
+  }
+}

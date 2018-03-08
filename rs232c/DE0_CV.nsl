@@ -1,0 +1,24 @@
+#include "serial_s.inc"
+#include "serial_r.inc"
+declare DE0_CV{
+  input RDX;
+  output TDX;
+}
+
+module DE0_CV {
+  serial_s sender;
+  serial_r receiver;
+
+  
+  receiver.rxd = RDX;
+  TDX = sender.TDX;
+
+  if(receiver.rcvcall){
+    sender.launch(receiver.RCV);
+  }
+  //func receiver.complete{
+  //  sender.launch(receiver.DATA);
+  //}
+  func sender.complete{
+  }
+}

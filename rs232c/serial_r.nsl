@@ -1,0 +1,89 @@
+//  Baud Rate =  115.2Kbps
+#include "serial_r.inc"
+
+module  serial_r {
+    reg         rxd_d1          =   0;
+    reg         rxd_d2          =   0;
+    reg         rxd_d3          =   0;
+    reg         det_counter[9]  =   0;
+    reg         d_counter[12]   =   0;
+    reg         bit[4]          =   0;
+    reg         RDATA[8]        =   0;
+    reg         midi_num[2]     =   0;
+    reg         rcvcall_reg     =   0;
+
+
+    proc_name   det_start();
+    proc_name   get_data();
+    proc_name   reload();
+
+
+    //  RXD Synchronization
+    rxd_d1      :=  rxd;
+    rxd_d2      :=  rxd_d1;
+
+    //  Fall edge detection and Drive start bit detection
+    rxd_d3      :=  rxd_d2;
+    if(~det_start && ~get_data && ~reload) {
+	    if(rxd_d3 && ~rxd_d2) det_start();
+    }
+
+    rcvcall      =  rcvcall_reg;
+    RCV          =  RDATA;
+
+    //  judgement Start-Bit or noise
+    proc det_start {
+        rcvcall_reg := 0;
+        if(~rxd_d2) {
+            any {
+                det_counter == START_BIT    :   {
+                                                    get_data();
+                                                    det_counter := 0;
+                                                    finish;
+                                                }
+                det_counter <  START_BIT    :   det_counter++;
+            }
+        } else {
+            det_counter := 0;
+            finish;
+        }
+    }
+
+    //  Get 8-bit datas
+    proc get_data {
+        any {
+            d_counter == SAMP_TIMING    :   {
+						RDATA := {rxd_d2, RDATA[7:1]};
+						d_counter++;
+					    }
+            d_counter == BAUD_PERIOD    :   {
+                                                d_counter := 0;
+                                                if(bit == 7) {
+                                                    bit := 0;
+                                                    rcvcall_reg := 1;
+                                                    reload();
+                                                    //finish;
+                                                } else {
+                                                    bit++;
+                                                }
+                                            }
+            else                        :   d_counter++;
+        }
+    }
+
+    //  Output receiving data
+    proc reload {
+        if(rcvcall_reg) {
+            rcvcall_reg := 0;
+            finish;
+        } else {
+            rcvcall_reg := 0;
+            midi_num++;
+            any {
+                midi_num == 0   :   midi_data0 = RDATA;
+                midi_num == 1   :   midi_data1 = RDATA;
+                midi_num == 2   :   midi_data2 = RDATA;
+            }
+        }
+    }
+}
