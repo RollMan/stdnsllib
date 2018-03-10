@@ -8,7 +8,7 @@ module serial_s {
 
   proc_name startbit, send, endbit;
 
-  TDX = TDX_r;
+  TXD = TDX_r;
 
   func launch{
     if(!startbit && !send && !endbit){

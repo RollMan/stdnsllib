@@ -18,7 +18,7 @@ module  serial_r {
 
 
     //  RXD Synchronization
-    rxd_d1      :=  rxd;
+    rxd_d1      :=  RXD;
     rxd_d2      :=  rxd_d1;
 
     //  Fall edge detection and Drive start bit detection

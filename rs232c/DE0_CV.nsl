@@ -1,8 +1,8 @@
 #include "serial_s.inc"
 #include "serial_r.inc"
 declare DE0_CV{
-  input RDX;
-  output TDX;
+  input RXD;
+  output TXD;
 }
 
 module DE0_CV {
@@ -10,8 +10,8 @@ module DE0_CV {
   serial_r receiver;
 
   
-  receiver.rxd = RDX;
-  TDX = sender.TDX;
+  receiver.RXD = RXD;
+  TXD = sender.TXD;
 
   func receiver.complete {
     sender.launch(receiver.DATA);

@@ -1,5 +1,5 @@
 declare serial_r {
-    input       rxd;
+    input       RXD;
     output      DATA[8];
     func_out      complete(DATA);
     output      midi_data0[8];
